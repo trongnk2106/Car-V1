@@ -19,7 +19,7 @@ StatusLines = []
 StatusBoxes = []
 
 #Global variable
-MAX_SPEED = 30
+MAX_SPEED = 35
 MAX_ANGLE = 25
 #Tốc độ thời điểm ban đầu
 speed_limit = MAX_SPEED
@@ -40,7 +40,8 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # Define the port on which you want to connect
 PORT = 54321
 # connect to the server on local computer
-s.connect(('127.0.0.1', PORT))
+net.load_model(49,"0.2270")
+s.connect(('host.docker.internal', PORT))
 
 
 def Control(angle, speed):
@@ -51,7 +52,7 @@ def Control(angle, speed):
 
 if __name__ == "__main__":
     print('I am loading model right now, pls wait a minute')
-    net.load_model(10,"0.1357")
+    
 
     try:
         while True:
@@ -72,8 +73,8 @@ if __name__ == "__main__":
                     + sendBack_Speed (tốc độ điều khiển): [-150, 150]
                         NOTE: (âm là lùi, dương là tiến)
             """
-
-            message_getState = bytes("0", "utf-8")
+            '''message_getState = bytes(f'{sendBack_angle} {sendBack_Speed}', 'utf-8')
+            #message_getState = bytes("0", "utf-8")
             s.sendall(message_getState)
             state_date = s.recv(100)
 
@@ -84,7 +85,7 @@ if __name__ == "__main__":
             except Exception as er:
                 print(er)
                 pass
-
+            '''
             message = bytes(f"1 {sendBack_angle} {sendBack_Speed}", "utf-8")
             s.sendall(message)
             data = s.recv(100000)
@@ -97,14 +98,14 @@ if __name__ == "__main__":
                         ), -1
                     )
 
-                print(current_speed, current_angle)
-                print(image.shape)
+                #print(current_speed, current_angle)
+                #print(image.shape)
 
                 # your process here
-                image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                #image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
                 image = cv2.resize(image,(512,256))
                 #pro_img = cv2.inRange(image, (190,190,190), (255,255,255))
-                cv2.imshow('processed image',image)
+                #cv2.imshow('processed image',image)
                 # your process here
 
                 x, y = net.predict(image)
@@ -112,27 +113,27 @@ if __name__ == "__main__":
                 fits = np.array([np.polyfit(_y, _x, 1) for _x, _y in zip(x, y)])
                 
                 fits = util.adjust_fits(fits)
-                print("fits: ", fits)
-                sendBack_angle = util.get_steer_angle(fits)
+                print("fits: ", fits.shape[0])
+                sendBack_angle = util.get_steer_angle(fits, current_speed)
                 curTime = time.time()
                 sec = curTime - prevTime
                 fps = 1/(sec)
                 string = "FPS : "+ str(fps)
-                print("FPS: ", string)
+                #print("FPS: ", string)
 
-                #net.get_mask_lane(fits)
+                net.get_mask_lane(fits)
                 #image_lane = net.get_image_lane()
-                #cv2.imshow("image", image_lane)
+                image_points = net.get_image_points()
+                #cv2.imshow("image", image_points)
+                
+                #cv2.imshow("image", image)
                 #key = cv2.waitKey(1)
                 if sendBack_Speed > MAX_SPEED:
                     sendBack_Speed = 5
                 if sendBack_Speed < 10:
-                    sendBack_Speed = 50
-
-
-
-
-
+                    sendBack_Speed = 35
+                # if (sendBack_angle >= 5 or sendBack_angle <= -5):
+                #     sendBack_Speed = 5
 
                 # cv2.imshow("IMG", image)
                 cv2.waitKey(1)
