@@ -76,8 +76,8 @@ class Parameters():
     point_in_lane = 0
     source_points = np.float32([
     [0, y_size],
-    [0, (5/9)*y_size],
-    [x_size, (5/9)*y_size],
+    [0, (4/9)*y_size],
+    [x_size, (4/9)*y_size],
     [x_size, y_size]
     ])
     
