@@ -16,7 +16,7 @@ RUN add-apt-repository ppa:deadsnakes/ppa && \
     apt update && apt install -y libsm6 libxext6 ffmpeg && \
     apt-get install -y libxrender-dev
 
-RUN cp . /Car-V1
+RUN . /Car-V1
 
 RUN cd Car-V1 && \
     python3 -m pip install --upgrade pip && \
