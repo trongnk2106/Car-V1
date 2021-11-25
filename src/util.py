@@ -150,9 +150,9 @@ def get_steer_angle(fits):
         val = point_x - avaiable_fit(point_y)
         # print(val)
         if val > 0: # is right
-            x = x_avaiable + 150
+            x = x_avaiable + 180
         else: # is left
-            x = x_avaiable - 150
+            x = x_avaiable - 180
         return_value = errorAngle((x,y))
         return return_value
     return  0
